@@ -214,28 +214,37 @@
 //     </>
 //   );
 // }
-import axios from "axios";
+// import axios from "axios";
 import SearchForm from "./SearchForm";
 import { useState } from "react";
 import type { Article } from "../types/article";
 import ArticleList from "./ArticleList";
-
-
-interface ArticleHttpResponse {
-  hits: Article[];
-}
+import { fetchArticles } from "../services/articleService";
 
 export default function App() {
   const [articles, setArticles] = useState <Article[]>([]);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  
   const handleSearch = async (topic: string) => {
-    const response = await axios.get<ArticleHttpResponse>(`https://hn.algolia.com/api/v1/search?query=${topic}`);
-    console.log(response.data);
-    setArticles(response.data.hits)
+
+    try {
+      setIsLoading(true);
+      setIsError(false);
+      
+      const data = await fetchArticles(topic);
+      setArticles(data);
+    } catch {
+      setIsError(true);
+    } finally {
+setIsLoading(false);
+    }
   };
   return (
     <>
       <SearchForm onSubmit={handleSearch} />
+      {isLoading && <p>Loading data, please wait...</p>}
+      {isError && <p>Whoops, something went wrong! Please try again!</p>}
     {articles.length > 0 && <ArticleList items={articles} /> }
     </>
   );
