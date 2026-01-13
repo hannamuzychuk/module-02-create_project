@@ -116,17 +116,17 @@
 //   );
 // }
 
-import { useState } from "react";
+// import { useState } from "react";
 
-interface Values {
-  x: number;
-  y: number;
-}
+// interface Values {
+//   x: number;
+//   y: number;
+// }
 
-export default function App() {
-  const [values, setValues] = useState<Values>({ x: 0, y: 0 });
+// export default function App() {
+//   const [values, setValues] = useState<Values>({ x: 0, y: 0 });
 
-  // const updateX = () => { 
+  // const updateX = () => {
   //   setValues({
   //     ...values,
   //     x: values.x + 1,
@@ -138,18 +138,106 @@ export default function App() {
   //     y: values.y + 1,
   //   });
   //  };
-  const updateValue = (key: keyof Values) => {
-    setValues({
-      ...values,
-      [key]: values[key] + 1,
-    });
+//   const updateValue = (key: keyof Values) => {
+//     setValues({
+//       ...values,
+//       [key]: values[key] + 1,
+//     });
+// }
+
+//   return (
+//  <div>
+//       <p>x: {values.x}, y: {values.y}</p>
+//       <button onClick={() => updateValue("x")}>Update x</button>
+//       <button onClick={() => updateValue("y")}>Update y</button>
+//     </div>
+//   );
+// }
+// export default function App() {
+//   const handleSubmit = (event:
+//     React.FormEvent<HTMLFormElement>) => {
+//     event.preventDefault();
+//     const form = event.currentTarget;
+
+//     const formData = new FormData(form);
+//     const username = formData.get("username");
+//     console.log("Username:", username);
+
+//     form.reset();
+//   };
+
+//   return (
+// <form onSubmit={handleSubmit}>
+//       <input type="text" name="username" />
+//       <button type="submit">Submit</button>
+//     </form>
+//   );
+// }
+
+// export default function App() {
+//   const handleSubmit = (formData: FormData) => {
+//     const username = formData.get("username") as string;
+//     console.log("Name:", username);
+//   };
+
+//   return (
+//     <form action={handleSubmit}>
+//       <input type="text" name="username" />
+//       <button type="submit">Submit</button>
+//     </form>
+//   )
+// }
+
+// export default function App() {
+//   const handleSubmit = (formData: FormData) => {
+//     const username = formData.get("username") as string;
+//     console.log("Name:", username);
+//   };
+
+//   return (
+//     <form action={handleSubmit}>
+//       <input type="text" name="username" defaultValue="John Doe" />
+//       <button type="submit">Submit</button>
+//     </form>
+//   )
+// }
+// import OrderForm from "./OrderForm";
+
+// export default function App() {
+//   const handleOrder = (data: string) => {
+//     console.log("Order received from:", data);
+//   }
+//   return (
+//     <>
+//       <h1>Place your order</h1>
+//       <OrderForm onSubmit={handleOrder} />
+//     </>
+//   );
+// }
+import axios from "axios";
+import SearchForm from "./SearchForm";
+import { useState } from "react";
+import type { Article } from "../types/article";
+import ArticleList from "./ArticleList";
+
+
+interface ArticleHttpResponse {
+  hits: Article[];
 }
 
+export default function App() {
+  const [articles, setArticles] = useState <Article[]>([]);
+
+  const handleSearch = async (topic: string) => {
+    const response = await axios.get<ArticleHttpResponse>(`https://hn.algolia.com/api/v1/search?query=${topic}`);
+    console.log(response.data);
+    setArticles(response.data.hits)
+  };
   return (
- <div>
-      <p>x: {values.x}, y: {values.y}</p>
-      <button onClick={() => updateValue("x")}>Update x</button>
-      <button onClick={() => updateValue("y")}>Update y</button>
-    </div>
+    <>
+      <SearchForm onSubmit={handleSearch} />
+    {articles.length > 0 && <ArticleList items={articles} /> }
+    </>
   );
+
 }
